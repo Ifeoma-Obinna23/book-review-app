@@ -92,3 +92,32 @@ output "database_security_group_id" {
   description = "ID of the RDS MySQL security group. Inbound from the app tier SG only, on port 3306, with no egress."
   value       = module.security.database_security_group_id
 }
+
+# -----------------------------------------------------------------------------
+# Load balancers
+# -----------------------------------------------------------------------------
+
+output "public_alb_dns_name" {
+  description = "DNS name of the public ALB. The app's single internet-facing entry point; point a Route 53 alias record at this."
+  value       = module.load_balancer.public_alb_dns_name
+}
+
+output "public_alb_arn" {
+  description = "ARN of the public ALB."
+  value       = module.load_balancer.public_alb_arn
+}
+
+output "internal_alb_dns_name" {
+  description = "DNS name of the internal ALB. Never publicly resolvable/reachable -- this is what the web tier's server-side code calls to reach the app tier."
+  value       = module.load_balancer.internal_alb_dns_name
+}
+
+output "web_target_group_arn" {
+  description = "ARN of the web tier target group, attached by the web-tier ASG (compute module)."
+  value       = module.load_balancer.web_target_group_arn
+}
+
+output "app_target_group_arn" {
+  description = "ARN of the app tier target group (port 3001), attached by the app-tier ASG (compute module) and forwarded to only by the internal ALB."
+  value       = module.load_balancer.app_target_group_arn
+}

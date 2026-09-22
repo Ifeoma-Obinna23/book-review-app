@@ -106,3 +106,53 @@ variable "public_subnet_map_public_ip_on_launch" {
   type        = bool
   default     = false
 }
+
+# -----------------------------------------------------------------------------
+# Load balancing
+# -----------------------------------------------------------------------------
+# web_port, internal_alb_port and app_port are deliberately NOT root
+# variables -- see the load-balancer module block in main.tf for why. Health
+# check tuning and deletion protection are genuine per-environment
+# operational knobs, so they are surfaced here.
+
+variable "web_health_check_healthy_threshold" {
+  description = "Consecutive successful health checks before an unhealthy web-tier target is marked healthy."
+  type        = number
+  default     = 3
+}
+
+variable "web_health_check_unhealthy_threshold" {
+  description = "Consecutive failed health checks before a healthy web-tier target is marked unhealthy."
+  type        = number
+  default     = 3
+}
+
+variable "web_health_check_interval" {
+  description = "Seconds between health checks against the web target group."
+  type        = number
+  default     = 30
+}
+
+variable "app_health_check_healthy_threshold" {
+  description = "Consecutive successful health checks before an unhealthy app-tier target is marked healthy."
+  type        = number
+  default     = 3
+}
+
+variable "app_health_check_unhealthy_threshold" {
+  description = "Consecutive failed health checks before a healthy app-tier target is marked unhealthy."
+  type        = number
+  default     = 3
+}
+
+variable "app_health_check_interval" {
+  description = "Seconds between health checks against the app target group."
+  type        = number
+  default     = 30
+}
+
+variable "enable_deletion_protection" {
+  description = "Whether deletion protection is enabled on both the public and internal ALBs. Defaults to false so this dev environment's ALBs can be torn down freely; set true once the environment is no longer disposable."
+  type        = bool
+  default     = false
+}

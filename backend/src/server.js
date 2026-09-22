@@ -26,6 +26,14 @@ app.use((req, res, next) => {
   next();
 });
 
+// Liveness check — returns 200 immediately, independent of DB connectivity
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 async function startServer() {
   try {
     // Initialize database
@@ -88,10 +96,6 @@ async function startServer() {
     app.get("/", (req, res) => {
       res.send("📚 Book Review API is running...");
     });
-
-    // Start the server
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   } catch (error) {
     console.error("❌ Server startup failed:", error);
   }

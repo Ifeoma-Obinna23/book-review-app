@@ -21,7 +21,7 @@ async function initializeDatabase() {
     return sequelize;
   } catch (error) {
     console.error("Database initialization failed:", error);
-    process.exit(1);
+    throw error;
   }
 }
 

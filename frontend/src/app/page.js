@@ -8,7 +8,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/books`) // Ensure correct API call
+    axios.get(`/api/books`)
       .then(response => {
         setBooks(response.data);
         setLoading(false);

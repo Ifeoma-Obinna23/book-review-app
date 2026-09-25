@@ -11,10 +11,10 @@
 #            -> app tier   (Node.js/Express, 3001)
 #            -> RDS MySQL  (private db subnets, 3306)
 #
-# `network`, `security` and `load-balancer` are wired up here. The compute and
-# database modules are still scaffolds and are deliberately NOT called --
-# instantiating them would either fail validation or silently create nothing.
-# They get added as each one is built out and reviewed.
+# `network`, `security`, `load-balancer` and `compute` are wired up here. The
+# database module is still a scaffold and is deliberately NOT called --
+# instantiating it would either fail validation or silently create nothing.
+# It gets added once it is built out and reviewed.
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -121,6 +121,82 @@ module "load_balancer" {
 
   project_name = var.project_name
   environment  = var.environment
+
+  tags = var.tags
+}
+
+# -----------------------------------------------------------------------------
+# Compute -- web-tier and app-tier launch templates, ASGs, and the shared IAM
+# role/instance profile
+# -----------------------------------------------------------------------------
+# Subnet IDs come from the network module; security group IDs from the
+# security module; target group ARNs and the internal ALB's DNS name/port
+# from the load-balancer module. This module creates no security groups of
+# its own and no SSH key pair -- access is via SSM Session Manager, using the
+# IAM role this module creates (AmazonSSMManagedInstanceCore) plus the single
+# admin_cidr SSH exception already enforced by the security module's web-tier
+# security group.
+#
+# internal_alb_port is left at the compute module's default (80) for the same
+# reason the security and load-balancer modules' port inputs aren't promoted
+# to root variables: it must agree with the load-balancer module's internal
+# listener port to keep the web tier's proxy config pointed at the right
+# port.
+
+module "compute" {
+  source = "./modules/compute"
+
+  vpc_id                 = module.network.vpc_id
+  public_subnet_ids      = module.network.public_web_subnet_ids
+  private_app_subnet_ids = module.network.private_app_subnet_ids
+
+  web_security_group_id = module.security.web_tier_security_group_id
+  app_security_group_id = module.security.app_tier_security_group_id
+
+  web_target_group_arn  = module.load_balancer.web_target_group_arn
+  app_target_group_arn  = module.load_balancer.app_target_group_arn
+  internal_alb_dns_name = module.load_balancer.internal_alb_dns_name
+
+  web_instance_type = var.web_instance_type
+  app_instance_type = var.app_instance_type
+
+  secrets_manager_arn_pattern = var.secrets_manager_arn_pattern
+
+  aws_region          = var.aws_region
+  app_allowed_origins = var.app_allowed_origins
+  db_secret_name      = var.db_secret_name
+
+  project_name = var.project_name
+  environment  = var.environment
+
+  tags = var.tags
+}
+
+# -----------------------------------------------------------------------------
+# Database -- RDS MySQL, Multi-AZ primary + read replica, private-db subnets
+# -----------------------------------------------------------------------------
+# Subnet IDs come from the network module. The database security group comes
+# from the security module -- this module creates no security group of its
+# own and attaches only what it is given (CLAUDE.md section 5).
+#
+# db_secret_name is shared with the compute module's db_secret_name and
+# secrets_manager_arn_pattern inputs: the app tier's IAM policy is scoped to
+# read a secret of this exact name, so this is the same single-source-of-truth
+# pattern used for the port variables above -- it must not be allowed to drift
+# independently in two modules.
+
+module "database" {
+  source = "./modules/database"
+
+  project_name = var.project_name
+  environment  = var.environment
+
+  private_db_subnet_ids      = module.network.private_db_subnet_ids
+  database_security_group_id = module.security.database_security_group_id
+
+  db_secret_name      = var.db_secret_name
+  deletion_protection = false
+
 
   tags = var.tags
 }

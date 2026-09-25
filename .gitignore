@@ -1,5 +1,7 @@
 **/.terraform/
 *.tfstate
 *.tfstate.*
+*.tfvars
 crash.log
 **/.claude/settings.local.json
+app/

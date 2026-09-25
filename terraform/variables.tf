@@ -156,3 +156,39 @@ variable "enable_deletion_protection" {
   type        = bool
   default     = false
 }
+
+# -----------------------------------------------------------------------------
+# Compute
+# -----------------------------------------------------------------------------
+# internal_alb_port is NOT a root variable, for the same reason noted above
+# the load-balancer module block in main.tf: it must stay in lockstep with
+# the load-balancer module's own internal listener port default.
+
+variable "web_instance_type" {
+  description = "EC2 instance type for the web-tier (Next.js) launch template."
+  type        = string
+  default     = "t3.small"
+}
+
+variable "app_instance_type" {
+  description = "EC2 instance type for the app-tier (Node.js/Express) launch template."
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "secrets_manager_arn_pattern" {
+  description = "ARN pattern (may include wildcards) for the Secrets Manager secret(s) the shared web/app IAM role may read via secretsmanager:GetSecretValue. Defaults to this project/environment's own secrets namespace. Intended for future use once the database module provisions real DB credentials into Secrets Manager."
+  type        = string
+  default     = "arn:aws:secretsmanager:*:*:secret:book-review-app-dev-*"
+}
+
+variable "db_secret_name" {
+  description = "Name of the Secrets Manager secret holding the app tier's DB credentials and JWT secret (JSON keys DB_HOST, DB_NAME, DB_USER, DB_PASS, JWT_SECRET)."
+  type        = string
+  default     = "book-review-app-dev-db-credentials"
+}
+
+variable "app_allowed_origins" {
+  description = "Comma-separated CORS-allowed origin(s) for the app tier, written into the app tier's ALLOWED_ORIGINS. Not a secret, but deliberately has no default: set it to the web tier's public-facing origin, e.g. the public ALB's DNS name with scheme (https://<public_alb_dns_name>) once module.load_balancer.public_alb_dns_name is wired up, or a real domain if one exists."
+  type        = string
+}

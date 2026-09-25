@@ -121,3 +121,18 @@ output "app_target_group_arn" {
   description = "ARN of the app tier target group (port 3001), attached by the app-tier ASG (compute module) and forwarded to only by the internal ALB."
   value       = module.load_balancer.app_target_group_arn
 }
+
+output "web_autoscaling_group_name" {
+  description = "Name of the web-tier Auto Scaling Group."
+  value       = module.compute.web_autoscaling_group_name
+}
+
+output "app_autoscaling_group_name" {
+  description = "Name of the app-tier Auto Scaling Group."
+  value       = module.compute.app_autoscaling_group_name
+}
+
+output "compute_instance_role_arn" {
+  description = "ARN of the IAM role shared by the web-tier and app-tier instance profiles."
+  value       = module.compute.instance_role_arn
+}

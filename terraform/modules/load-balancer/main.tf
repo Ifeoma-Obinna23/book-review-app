@@ -140,7 +140,7 @@ resource "aws_lb_target_group" "app" {
 
   health_check {
     enabled             = true
-    path                = "/"
+    path                = "/health"
     protocol            = "HTTP"
     healthy_threshold   = var.app_health_check_healthy_threshold
     unhealthy_threshold = var.app_health_check_unhealthy_threshold

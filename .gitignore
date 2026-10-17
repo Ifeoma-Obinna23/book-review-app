@@ -7,3 +7,5 @@
 crash.log
 **/.claude/settings.local.json
 app/
+reports/tfplan.json
+terraform/tfplan.out

@@ -102,14 +102,14 @@ that actually contain resources.
 |---|---|
 | `network` | **Built** — real resources, wired into root `main.tf` |
 | `security` | **Built** — five SGs + SG-to-SG rule chain + default-SG lockdown, wired into root `main.tf` |
-| `load-balancer` | Scaffold — variables/outputs sketched, no resources |
-| `database` | Scaffold — variables/outputs sketched, no resources |
-| `compute` | Empty — files exist but are zero-length |
+| `load-balancer` | **Built** — public ALB + internal ALB, listeners, target groups, wired into root `main.tf` |
+| `database` | **Built** — RDS MySQL, wired into root `main.tf` |
+| `compute` | **Built** — shared AMI/IAM in `main.tf`, web tier in `web.tf`, app tier in `app.tf`, wired into root `main.tf` |
 
-Open decision: the architecture has two distinct compute tiers (web and app)
-but there is currently one `compute` module. Decide whether it takes a
-tier parameter or splits into `compute-web` / `compute-app` before any
-compute resources are authored.
+Resolved: `compute` stayed a single module rather than splitting into
+`compute-web` / `compute-app`. Both tiers share one AMI data source and one
+IAM role/instance profile (`main.tf`), with tier-specific launch
+template/ASG resources split into `web.tf` and `app.tf`.
 
 - Run `terraform fmt` and `terraform validate` after every change (enforced by
   hooks — see `.claude/settings.json`)

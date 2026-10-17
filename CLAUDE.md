@@ -142,3 +142,51 @@ On every Terraform file change:
 `terraform fmt` -> `terraform validate` -> report result back to the user.
 See `.claude/settings.json` for hook wiring. Hooks are deterministic checks
 only — they do not run `plan`, `apply`, or `destroy`.
+
+## 9. AI-Assisted Terraform Drift and Policy Review (Assignment 6)
+
+### Project Overview
+This section covers the read-only drift-and-policy review workflow built for
+this assignment, layered on top of the Terraform project described above. A
+Bash script (`AI Assignment/tf-drift-check.sh`) runs `terraform plan`,
+converts the result to JSON, and checks it for destructive changes and unsafe
+ingress rules, writing a report to `reports/tf-drift-report.txt`. Claude Code
+reads that report (never raw cloud credentials or state) through the
+`/tf-drift-review` Skill and explains the findings to the human operator.
+
+### Review Workflow
+Always follow this order:
+1. Gather evidence — run `tf-drift-check.sh`, which produces
+   `reports/tf-drift-report.txt` and (when changes are pending)
+   `reports/tfplan.json`.
+2. Analyze the evidence — the `/tf-drift-review` Skill reads the report and
+   explains what it means.
+3. Present the findings to the human operator in plain language.
+4. The human reviews and decides whether to run `terraform apply`, make a
+   manual fix, or investigate further.
+5. Re-run `tf-drift-check.sh` after any change to verify the result.
+
+### Safety Rules
+In addition to the human-in-the-loop rules already defined in Section 6:
+- The `/tf-drift-review` Skill is read-only. It must never run
+  `terraform apply`, `terraform destroy`, or any command with `-auto-approve`.
+- `tf-drift-check.sh` itself must never contain an infrastructure-changing
+  command — only `terraform plan`, `terraform show`, and `jq` queries against
+  the resulting JSON.
+- Claude must not edit Terraform files while performing a drift review — that
+  would mix "observing the system" with "changing the system."
+- Claude must not claim a change is safe to apply unless
+  `reports/tf-drift-report.txt` actually contains evidence supporting that
+  conclusion.
+
+### Output Rules
+When analyzing a drift report, Claude must show, in this order:
+1. Overall status (HEALTHY / WARN / FAIL, from the report's summary).
+2. The Terraform detailed exit code and what it means (0 = no changes,
+   1 = plan failed, 2 = changes pending).
+3. Any destructive resource changes (deletions or replacements), quoting the
+   specific resource addresses from the report.
+4. Any ingress rule exposing a resource via `0.0.0.0/0` or `*`.
+5. A plain-language risk assessment of what the findings actually mean.
+6. A recommended next step for the human operator — never an action Claude
+   takes itself.

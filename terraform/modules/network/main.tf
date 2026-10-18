@@ -77,7 +77,8 @@ resource "aws_vpc" "main" {
   instance_tenancy     = "default"
 
   tags = {
-    Name = "${local.name_prefix}-vpc"
+    Name  = "${local.name_prefix}-vpc"
+    Owner = "Ifeoma Jane Akabueze"
   }
 
   # Cross-variable invariants. Kept as preconditions rather than variable

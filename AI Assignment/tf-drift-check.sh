@@ -145,6 +145,7 @@ check_open_ingress() {
 
   open_cidr_count=$(jq \
     '[.resource_changes[]? |
+      select(.change.actions != ["no-op"]) |
       select(.change.after != null) |
       .change.after |
       (.ingress // [], .security_rule // []) |

@@ -1,0 +1,23 @@
+========================================
+Terraform Drift and Policy Review Report
+========================================
+Full Name: Ifeoma Jane Akabueze
+Timestamp: 2026-10-17T23:01:06Z
+Terraform Directory: terraform
+
+Running: terraform plan -detailed-exitcode -out=tfplan.out
+
+[WARN] terraform plan exit code 2 — changes are pending and require review
+[PASS] No delete or replace actions found in the plan
+[FAIL] 2 ingress rule(s) would open access to 0.0.0.0/0 or *
+
+Summary:
+PASS: 1
+WARN: 1
+FAIL: 1
+Overall Status: FAIL
+Script Exit Code: 2
+Report File: /c/Users/IFY/book-review-app/reports/tf-drift-report.txt
+
+This script only ran Terraform plan and show commands.
+It never ran terraform apply or terraform destroy.

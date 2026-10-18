@@ -1,0 +1,23 @@
+========================================
+Terraform Drift and Policy Review Report
+========================================
+Full Name: Ifeoma Jane Akabueze
+Timestamp: 2026-10-18T14:56:33Z
+Terraform Directory: terraform
+
+Running: terraform plan -detailed-exitcode -out=tfplan.out
+
+[PASS] terraform plan exit code 0 — no pending changes
+[PASS] No pending plan JSON to inspect for destructive actions
+[PASS] No pending plan JSON to inspect for open ingress rules
+
+Summary:
+PASS: 3
+WARN: 0
+FAIL: 0
+Overall Status: HEALTHY
+Script Exit Code: 0
+Report File: /c/Users/IFY/book-review-app/reports/tf-drift-report.txt
+
+This script only ran Terraform plan and show commands.
+It never ran terraform apply or terraform destroy.
